@@ -1,6 +1,6 @@
 # Phase 1 설계: 콘솔 루프 뼈대
 
-> PLAN: [PLAN.md](./PLAN.md) — Phase 1
+> PLAN: [PLAN.md](../PLAN.md) — Phase 1
 
 ---
 
