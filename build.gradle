@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass = 'org.example.Main'
+    mainClass = 'org.example.app.CrudMain'
     applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8', '-Dstdout.encoding=UTF-8']
 }
 
