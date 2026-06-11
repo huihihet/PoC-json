@@ -12,6 +12,9 @@ import java.util.Scanner;
 
 public class ProductHandler {
 
+    static class InputTerminatedException extends RuntimeException {}
+
+
     private final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -49,8 +52,9 @@ public class ProductHandler {
 
     private String readRequiredString(Scanner scanner, String field) {
         while (true) {
+            if (!scanner.hasNextLine()) throw new InputTerminatedException();
             System.out.print("  " + field + "      : ");
-            String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+            String value = scanner.nextLine().trim();
             if (!value.isEmpty()) return value;
             System.out.println("[오류] 값을 입력하세요.");
         }
@@ -58,8 +62,9 @@ public class ProductHandler {
 
     private double readDouble(Scanner scanner, String field) {
         while (true) {
+            if (!scanner.hasNextLine()) throw new InputTerminatedException();
             System.out.print("  " + field + "     : ");
-            String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+            String value = scanner.nextLine().trim();
             try {
                 return Double.parseDouble(value);
             } catch (NumberFormatException e) {
@@ -69,8 +74,9 @@ public class ProductHandler {
     }
 
     private List<String> readTags(Scanner scanner) {
+        if (!scanner.hasNextLine()) throw new InputTerminatedException();
         System.out.print("  tags      : ");
-        String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+        String value = scanner.nextLine().trim();
         if (value.isEmpty()) return Collections.emptyList();
         return Arrays.stream(value.split(","))
                      .map(String::trim)
@@ -80,8 +86,9 @@ public class ProductHandler {
 
     private boolean readBoolean(Scanner scanner, String field) {
         while (true) {
+            if (!scanner.hasNextLine()) throw new InputTerminatedException();
             System.out.print("  " + field + "  : ");
-            String value = scanner.hasNextLine() ? scanner.nextLine().trim().toLowerCase() : "";
+            String value = scanner.nextLine().trim().toLowerCase();
             if (value.equals("true"))  return true;
             if (value.equals("false")) return false;
             System.out.println("[오류] true 또는 false를 입력하세요.");
@@ -101,15 +108,17 @@ public class ProductHandler {
     }
 
     private String readOptionalString(Scanner scanner, String field, String current) {
+        if (!scanner.hasNextLine()) throw new InputTerminatedException();
         System.out.print("  " + field + "      (" + current + ") : ");
-        String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+        String value = scanner.nextLine().trim();
         return value.isEmpty() ? current : value;
     }
 
     private double readOptionalDouble(Scanner scanner, String field, double current) {
         while (true) {
+            if (!scanner.hasNextLine()) throw new InputTerminatedException();
             System.out.print("  " + field + "     (" + current + ") : ");
-            String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+            String value = scanner.nextLine().trim();
             if (value.isEmpty()) return current;
             try {
                 return Double.parseDouble(value);
@@ -120,8 +129,9 @@ public class ProductHandler {
     }
 
     private List<String> readOptionalTags(Scanner scanner, String currentStr, List<String> current) {
+        if (!scanner.hasNextLine()) throw new InputTerminatedException();
         System.out.print("  tags      (" + currentStr + ") : ");
-        String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+        String value = scanner.nextLine().trim();
         if (value.isEmpty()) return current;
         return Arrays.stream(value.split(","))
                      .map(String::trim)
@@ -131,8 +141,9 @@ public class ProductHandler {
 
     private boolean readOptionalBoolean(Scanner scanner, String field, boolean current) {
         while (true) {
+            if (!scanner.hasNextLine()) throw new InputTerminatedException();
             System.out.print("  " + field + "  (" + current + ") : ");
-            String value = scanner.hasNextLine() ? scanner.nextLine().trim().toLowerCase() : "";
+            String value = scanner.nextLine().trim().toLowerCase();
             if (value.isEmpty())           return current;
             if (value.equals("true"))      return true;
             if (value.equals("false"))     return false;

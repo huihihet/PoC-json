@@ -6,6 +6,7 @@ import org.example.storage.JsonFileStorage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class ConsoleApp {
@@ -102,6 +103,8 @@ public class ConsoleApp {
             Product product = productHandler.promptAdd(scanner, nextId);
             storage.append(product);
             System.out.println("저장 완료 [id=" + product.getId() + "]");
+        } catch (ProductHandler.InputTerminatedException e) {
+            running = false;
         } catch (IOException e) {
             System.out.println("[오류] 파일을 저장할 수 없습니다.");
         }
@@ -130,14 +133,27 @@ public class ConsoleApp {
                 return;
             }
             Product updated = productHandler.promptUpdate(scanner, existing);
+            if (isUnchanged(existing, updated)) {
+                System.out.println("변경 사항이 없습니다.");
+                return;
+            }
             List<Product> saved = all.stream()
                                      .map(p -> p.getId() == id ? updated : p)
                                      .toList();
             storage.saveAll(saved);
             System.out.println("수정 완료 [id=" + id + "]");
+        } catch (ProductHandler.InputTerminatedException e) {
+            running = false;
         } catch (IOException e) {
             System.out.println("[오류] 파일을 저장할 수 없습니다.");
         }
+    }
+
+    private boolean isUnchanged(Product a, Product b) {
+        return Objects.equals(a.getName(),   b.getName())
+            && a.getPrice()   == b.getPrice()
+            && a.isInStock()  == b.isInStock()
+            && Objects.equals(a.getTags(),   b.getTags());
     }
 
     private void handleDelete(String[] tokens) {
