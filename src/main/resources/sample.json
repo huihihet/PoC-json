@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "무선 키보드",
+  "price": 89900,
+  "tags": ["전자제품", "키보드", "무선"],
+  "in_stock": true,
+  "metadata": {
+    "brand": "로지텍",
+    "color": "블랙",
+    "warranty": "1년"
+  }
+}
