@@ -31,17 +31,18 @@ public class ConsoleApp {
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
-                dispatch(line.split("\\s+"));
+                dispatch(line.split("\\s+"), scanner);
             }
         }
     }
 
-    private void dispatch(String[] tokens) {
+    private void dispatch(String[] tokens, Scanner scanner) {
         switch (tokens[0]) {
             case "exit"   -> running = false;
             case "help"   -> printHelp();
             case "list"   -> handleList();
             case "find"   -> handleFind(tokens);
+            case "add"    -> handleAdd(scanner);
             default -> System.out.println("알 수 없는 커맨드: '" + tokens[0] + "'. 'help'를 입력하면 명령어 목록을 볼 수 있습니다.");
         }
     }
@@ -89,6 +90,18 @@ public class ConsoleApp {
                );
         } catch (IOException e) {
             System.out.println("[오류] 파일을 읽을 수 없습니다.");
+        }
+    }
+
+    private void handleAdd(Scanner scanner) {
+        try {
+            List<Product> all = storage.findAll();
+            long nextId = all.stream().mapToLong(Product::getId).max().orElse(0L) + 1;
+            Product product = productHandler.promptAdd(scanner, nextId);
+            storage.append(product);
+            System.out.println("저장 완료 [id=" + product.getId() + "]");
+        } catch (IOException e) {
+            System.out.println("[오류] 파일을 저장할 수 없습니다.");
         }
     }
 
