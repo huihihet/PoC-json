@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.model.Product;
 import org.example.storage.JsonFileStorage;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleApp {
 
     private final JsonFileStorage<Product> storage;
+    private final ProductHandler productHandler = new ProductHandler();
     private boolean running;
 
     public ConsoleApp(String dataFilePath) {
@@ -35,8 +38,10 @@ public class ConsoleApp {
 
     private void dispatch(String[] tokens) {
         switch (tokens[0]) {
-            case "exit" -> running = false;
-            case "help" -> printHelp();
+            case "exit"   -> running = false;
+            case "help"   -> printHelp();
+            case "list"   -> handleList();
+            case "find"   -> handleFind(tokens);
             default -> System.out.println("알 수 없는 커맨드: '" + tokens[0] + "'. 'help'를 입력하면 명령어 목록을 볼 수 있습니다.");
         }
     }
@@ -51,6 +56,40 @@ public class ConsoleApp {
                   delete <id>       ID로 삭제
                   help              커맨드 목록
                   exit              종료""");
+    }
+
+    private void handleList() {
+        try {
+            productHandler.printTable(storage.findAll());
+        } catch (IOException e) {
+            System.out.println("[오류] 파일을 읽을 수 없습니다.");
+        }
+    }
+
+    private void handleFind(String[] tokens) {
+        if (tokens.length < 2) {
+            System.out.println("사용법: find <id>");
+            return;
+        }
+        long id;
+        try {
+            id = Long.parseLong(tokens[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("[오류] id는 숫자여야 합니다.");
+            return;
+        }
+        try {
+            List<Product> all = storage.findAll();
+            all.stream()
+               .filter(p -> id == p.getId())
+               .findFirst()
+               .ifPresentOrElse(
+                   productHandler::printOne,
+                   () -> System.out.println("[오류] id=" + id + " 항목을 찾을 수 없습니다.")
+               );
+        } catch (IOException e) {
+            System.out.println("[오류] 파일을 읽을 수 없습니다.");
+        }
     }
 
     JsonFileStorage<Product> getStorage() {
