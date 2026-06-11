@@ -43,6 +43,8 @@ public class ConsoleApp {
             case "list"   -> handleList();
             case "find"   -> handleFind(tokens);
             case "add"    -> handleAdd(scanner);
+            case "update" -> handleUpdate(tokens, scanner);
+            case "delete" -> handleDelete(tokens);
             default -> System.out.println("알 수 없는 커맨드: '" + tokens[0] + "'. 'help'를 입력하면 명령어 목록을 볼 수 있습니다.");
         }
     }
@@ -100,6 +102,65 @@ public class ConsoleApp {
             Product product = productHandler.promptAdd(scanner, nextId);
             storage.append(product);
             System.out.println("저장 완료 [id=" + product.getId() + "]");
+        } catch (IOException e) {
+            System.out.println("[오류] 파일을 저장할 수 없습니다.");
+        }
+    }
+
+    private void handleUpdate(String[] tokens, Scanner scanner) {
+        if (tokens.length < 2) {
+            System.out.println("사용법: update <id>");
+            return;
+        }
+        long id;
+        try {
+            id = Long.parseLong(tokens[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("[오류] id는 숫자여야 합니다.");
+            return;
+        }
+        try {
+            List<Product> all = storage.findAll();
+            Product existing = all.stream()
+                                  .filter(p -> id == p.getId())
+                                  .findFirst()
+                                  .orElse(null);
+            if (existing == null) {
+                System.out.println("[오류] id=" + id + " 항목을 찾을 수 없습니다.");
+                return;
+            }
+            Product updated = productHandler.promptUpdate(scanner, existing);
+            List<Product> saved = all.stream()
+                                     .map(p -> p.getId() == id ? updated : p)
+                                     .toList();
+            storage.saveAll(saved);
+            System.out.println("수정 완료 [id=" + id + "]");
+        } catch (IOException e) {
+            System.out.println("[오류] 파일을 저장할 수 없습니다.");
+        }
+    }
+
+    private void handleDelete(String[] tokens) {
+        if (tokens.length < 2) {
+            System.out.println("사용법: delete <id>");
+            return;
+        }
+        long id;
+        try {
+            id = Long.parseLong(tokens[1]);
+        } catch (NumberFormatException e) {
+            System.out.println("[오류] id는 숫자여야 합니다.");
+            return;
+        }
+        try {
+            List<Product> all = storage.findAll();
+            boolean exists = all.stream().anyMatch(p -> id == p.getId());
+            if (!exists) {
+                System.out.println("[오류] id=" + id + " 항목을 찾을 수 없습니다.");
+                return;
+            }
+            storage.saveAll(all.stream().filter(p -> id != p.getId()).toList());
+            System.out.println("삭제 완료 [id=" + id + "]");
         } catch (IOException e) {
             System.out.println("[오류] 파일을 저장할 수 없습니다.");
         }

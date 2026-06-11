@@ -88,6 +88,58 @@ public class ProductHandler {
         }
     }
 
+    public Product promptUpdate(Scanner scanner, Product existing) {
+        String tagsStr = existing.getTags() != null
+                ? String.join(",", existing.getTags()) : "";
+
+        String name = readOptionalString(scanner, "name", existing.getName());
+        double price = readOptionalDouble(scanner, "price", existing.getPrice());
+        List<String> tags = readOptionalTags(scanner, tagsStr, existing.getTags());
+        boolean inStock = readOptionalBoolean(scanner, "in_stock", existing.isInStock());
+
+        return new Product(existing.getId(), name, price, tags, inStock, existing.getMetadata());
+    }
+
+    private String readOptionalString(Scanner scanner, String field, String current) {
+        System.out.print("  " + field + "      (" + current + ") : ");
+        String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+        return value.isEmpty() ? current : value;
+    }
+
+    private double readOptionalDouble(Scanner scanner, String field, double current) {
+        while (true) {
+            System.out.print("  " + field + "     (" + current + ") : ");
+            String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+            if (value.isEmpty()) return current;
+            try {
+                return Double.parseDouble(value);
+            } catch (NumberFormatException e) {
+                System.out.println("[오류] 숫자를 입력하세요.");
+            }
+        }
+    }
+
+    private List<String> readOptionalTags(Scanner scanner, String currentStr, List<String> current) {
+        System.out.print("  tags      (" + currentStr + ") : ");
+        String value = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+        if (value.isEmpty()) return current;
+        return Arrays.stream(value.split(","))
+                     .map(String::trim)
+                     .filter(s -> !s.isEmpty())
+                     .toList();
+    }
+
+    private boolean readOptionalBoolean(Scanner scanner, String field, boolean current) {
+        while (true) {
+            System.out.print("  " + field + "  (" + current + ") : ");
+            String value = scanner.hasNextLine() ? scanner.nextLine().trim().toLowerCase() : "";
+            if (value.isEmpty())           return current;
+            if (value.equals("true"))      return true;
+            if (value.equals("false"))     return false;
+            System.out.println("[오류] true 또는 false를 입력하세요.");
+        }
+    }
+
     public void printOne(Product product) {
         try {
             System.out.println(mapper.writeValueAsString(product));
